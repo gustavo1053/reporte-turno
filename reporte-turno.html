@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Turno</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a1a;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+    letter-spacing: 1px;
+  }
+
+  .turno-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .turno-btn {
+    flex: 1;
+    padding: 10px 0;
+    border: 2px solid #444;
+    background: transparent;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .turno-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+  }
+
+  .card {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .field {
+    margin-bottom: 10px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .field input,
+  .field select {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 15px;
+    color: #ffffff;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: #2563eb;
+  }
+
+  .field input::placeholder {
+    color: #555;
+  }
+
+  .field input[readonly] {
+    color: #888;
+    cursor: default;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .field-row .field {
+    flex: 1;
+  }
+
+  .field-row .field.monto {
+    flex: 0 0 130px;
+  }
+
+  .pending-block {
+    background: #222;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 4px;
+  }
+
+  .pending-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .pending-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .pending-idx {
+    font-size: 12px;
+    color: #666;
+    min-width: 16px;
+    font-weight: 700;
+  }
+
+  .pending-row input {
+    flex: 1;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    color: #fff;
+    outline: none;
+  }
+
+  .pending-row input:focus {
+    border-color: #2563eb;
+  }
+
+  .pending-row input::placeholder {
+    color: #555;
+  }
+
+  .pending-row input.monto {
+    flex: 0 0 110px;
+  }
+
+  .btn-copy {
+    width: 100%;
+    padding: 16px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+    margin-top: 4px;
+  }
+
+  .btn-copy:active {
+    transform: scale(0.98);
+    background: #1d4ed8;
+  }
+
+  .btn-copy.copied {
+    background: #16a34a;
+  }
+
+  select option {
+    background: #2a2a2a;
+    color: #fff;
+  }
+
+  .divider {
+    height: 1px;
+    background: #333;
+    margin: 12px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>📋 REPORTE DE TURNO</h1>
+
+  <div class="turno-tabs">
+    <button class="turno-btn active" onclick="setTurno('MAÑANA')">MAÑANA</button>
+    <button class="turno-btn" onclick="setTurno('TARDE')">TARDE</button>
+    <button class="turno-btn" onclick="setTurno('NOCHE')">NOCHE</button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">👤 Agente</div>
+    <div class="field">
+      <label>NOMBRE</label>
+      <input id="f-nombre" type="text" placeholder="Tu nombre" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">🟢 Inicio de Turno</div>
+    <div class="field-row">
+      <div class="field">
+        <label>DÍA</label>
+        <input id="f-ini-dia" type="text" placeholder="DD/MM/AAAA">
+      </div>
+      <div class="field monto">
+        <label>HORA</label>
+        <input id="f-ini-hora" type="text" readonly>
+      </div>
+    </div>
+    <div class="field">
+      <label>FICHAS</label>
+      <input id="f-ini-fichas" type="text" placeholder="ej: 1.213.283">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>BILLETERA</label>
+        <select id="f-ini-bill-nombre">
+          <option value="">— Elegir —</option>
+          <option>PERSONAL PAY</option>
+          <option>CLARO PAY</option>
+          <option>MERCADO PAGO</option>
+          <option>ASTROPAY</option>
+          <option>NX</option>
+          <option>PREX</option>
+          <option>UALA</option>
+          <option>LEMON</option>
+          <option>BUEPP</option>
+        </select>
+      </div>
+      <div class="field monto">
+        <label>MONTO $</label>
+        <input id="f-ini-bill-monto" type="text" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">🔴 Fin de Turno</div>
+    <div class="field-row">
+      <div class="field">
+        <label>DÍA</label>
+        <input id="f-fin-dia" type="text" placeholder="DD/MM/AAAA">
+      </div>
+      <div class="field monto">
+        <label>HORA</label>
+        <input id="f-fin-hora" type="text" readonly>
+      </div>
+    </div>
+    <div class="field">
+      <label>FICHAS</label>
+      <input id="f-fin-fichas" type="text" placeholder="ej: 1.389.554">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>BILLETERA</label>
+        <select id="f-fin-bill-nombre">
+          <option value="">— Elegir —</option>
+          <option>PERSONAL PAY</option>
+          <option>CLARO PAY</option>
+          <option>MERCADO PAGO</option>
+          <option>ASTROPAY</option>
+          <option>NX</option>
+          <option>PREX</option>
+          <option>UALA</option>
+          <option>LEMON</option>
+          <option>BUEPP</option>
+        </select>
+      </div>
+      <div class="field monto">
+        <label>MONTO $</label>
+        <input id="f-fin-bill-monto" type="text" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">📊 Movimientos</div>
+
+    <div class="field">
+      <label>BONOS</label>
+      <input id="f-bonos" type="text" placeholder="0">
+    </div>
+    <div class="field">
+      <label>DESCARTES</label>
+      <input id="f-descartes" type="text" placeholder="0">
+    </div>
+    <div class="field">
+      <label>CARGAS DE OTROS TURNOS</label>
+      <input id="f-cargas" type="text" placeholder="—">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>PAGO PENDIENTE GRUPO</label>
+      <div class="pending-block">
+        <div class="pending-row">
+          <span class="pending-idx">1</span>
+          <input id="pp-u1" type="text" placeholder="Usuario">
+          <input id="pp-m1" type="text" class="monto" placeholder="$ monto">
+        </div>
+        <div class="pending-row">
+          <span class="pending-idx">2</span>
+          <input id="pp-u2" type="text" placeholder="Usuario">
+          <input id="pp-m2" type="text" class="monto" placeholder="$ monto">
+        </div>
+        <div class="pending-row">
+          <span class="pending-idx">3</span>
+          <input id="pp-u3" type="text" placeholder="Usuario">
+          <input id="pp-m3" type="text" class="monto" placeholder="$ monto">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>COLABORACIÓN RECIBIDA</label>
+      <input id="f-col-rec" type="text" placeholder="—">
+    </div>
+    <div class="field">
+      <label>COLABORACIÓN PAGADA</label>
+      <input id="f-col-pag" type="text" placeholder="—">
+    </div>
+    <div class="field">
+      <label>CARGA DE FICHAS</label>
+      <input id="f-carga-fichas" type="text" placeholder="—">
+    </div>
+    <div class="field">
+      <label>RETIRO DE FICHAS</label>
+      <input id="f-retiro" type="text" placeholder="—">
+    </div>
+    <div class="field">
+      <label>SUELDO</label>
+      <input id="f-sueldo" type="text" placeholder="—">
+    </div>
+    <div class="field">
+      <label>PROPINA</label>
+      <input id="f-propina" type="text" placeholder="—">
+    </div>
+    <div class="field">
+      <label>COMENTARIOS</label>
+      <input id="f-comentarios" type="text" placeholder="—">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>PAGOS PENDIENTES SIN RETIRAR</label>
+      <div class="pending-block">
+        <div class="pending-row">
+          <span class="pending-idx">1</span>
+          <input id="psr-u1" type="text" placeholder="Usuario">
+          <input id="psr-m1" type="text" class="monto" placeholder="$ monto">
+        </div>
+        <div class="pending-row">
+          <span class="pending-idx">2</span>
+          <input id="psr-u2" type="text" placeholder="Usuario">
+          <input id="psr-m2" type="text" class="monto" placeholder="$ monto">
+        </div>
+        <div class="pending-row">
+          <span class="pending-idx">3</span>
+          <input id="psr-u3" type="text" placeholder="Usuario">
+          <input id="psr-m3" type="text" class="monto" placeholder="$ monto">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn-copy" id="btn-copy" onclick="generarReporte()">
+    GENERAR Y COPIAR REPORTE
+  </button>
+
+</div>
+
+<script>
+const HORAS = {
+  MAÑANA: { ini: '06:00', fin: '14:00' },
+  TARDE:  { ini: '14:00', fin: '22:00' },
+  NOCHE:  { ini: '22:00', fin: '06:00' }
+};
+let turno = 'MAÑANA';
+
+function setTurno(t) {
+  turno = t;
+  document.querySelectorAll('.turno-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === t);
+  });
+  document.getElementById('f-ini-hora').value = HORAS[t].ini;
+  document.getElementById('f-fin-hora').value = HORAS[t].fin;
+  const btn = document.getElementById('btn-copy');
+  btn.textContent = 'GENERAR Y COPIAR REPORTE';
+  btn.classList.remove('copied');
+}
+
+function v(id) {
+  return document.getElementById(id).value.trim() || '—';
+}
+
+function buildPendientes(prefix) {
+  const lines = [];
+  for (let i = 1; i <= 3; i++) {
+    const u = document.getElementById(`${prefix}-u${i}`).value.trim();
+    const m = document.getElementById(`${prefix}-m${i}`).value.trim();
+    if (u) lines.push(`  • ${u}: $${m || '—'}`);
+  }
+  return lines.length ? '\n' + lines.join('\n') : ' —';
+}
+
+function generarReporte() {
+  const iniBill = document.getElementById('f-ini-bill-nombre').value || '—';
+  const finBill = document.getElementById('f-fin-bill-nombre').value || '—';
+
+  const texto =
+`📋 REPORTE DIARIO: TURNO ${turno}
+👤 NOMBRE: ${v('f-nombre')}
+——————————————————
+
+🟢 INICIO DE TURNO
+Día: ${v('f-ini-dia')}
+Hora: ${HORAS[turno].ini}
+Fichas: ${v('f-ini-fichas')}
+Billetera: ${iniBill} $${v('f-ini-bill-monto')}
+
+——————————————————
+
+🔴 FIN DE TURNO
+Día: ${v('f-fin-dia')}
+Hora: ${HORAS[turno].fin}
+Fichas: ${v('f-fin-fichas')}
+Billetera: ${finBill} $${v('f-fin-bill-monto')}
+
+——————————————————
+
+Bonos: ${v('f-bonos')}
+Descartes: ${v('f-descartes')}
+Cargas de Otros Turnos: ${v('f-cargas')}
+Pago Pendiente Grupo:${buildPendientes('pp')}
+Colaboración Recibida: ${v('f-col-rec')}
+Colaboración Pagada: ${v('f-col-pag')}
+Carga de Fichas: ${v('f-carga-fichas')}
+Retiro de Fichas: ${v('f-retiro')}
+Sueldo: ${v('f-sueldo')}
+Propina: ${v('f-propina')}
+Comentarios: ${v('f-comentarios')}
+Pagos Pendientes sin Retirar:${buildPendientes('psr')}`;
+
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✅ COPIADO — PEGÁ EN TELEGRAM';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'GENERAR Y COPIAR REPORTE';
+      btn.classList.remove('copied');
+    }, 3000);
+  }).catch(() => {
+    alert('No se pudo copiar automáticamente. Seleccioná el texto manualmente.');
+  });
+}
+
+setTurno('MAÑANA');
+</script>
+</body>
+</html>
