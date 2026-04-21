@@ -295,6 +295,117 @@ async function subirFotos(inputId, carpeta, nombre) {
   return urls;
 }
 
+function buildPaginaHTML(datos) {
+  const { agente, turno, iniDia, iniFichas, iniBill, finDia, finFichas, finBill,
+          bonos, descartes, cargas, pp, colRec, colPag, cargaFichas, retiro,
+          sueldo, propina, extra1n, extra1v, extra2n, extra2v, psr, comentarios,
+          urlsIni, urlsFin } = datos;
+
+  const fotosSec = (urlsIni.length || urlsFin.length) ? `
+    <div class="seccion">
+      <div class="sec-titulo">📸 CAPTURAS</div>
+      ${urlsIni.length ? `<div class="foto-grupo-titulo">🟢 Inicio</div><div class="fotos-grid">${urlsIni.map(u=>`<a href="${u}" target="_blank"><img src="${u}" loading="lazy"></a>`).join('')}</div>` : ''}
+      ${urlsFin.length ? `<div class="foto-grupo-titulo">🔴 Fin</div><div class="fotos-grid">${urlsFin.map(u=>`<a href="${u}" target="_blank"><img src="${u}" loading="lazy"></a>`).join('')}</div>` : ''}
+    </div>` : '';
+
+  const extraSec = (extra1n || extra2n) ? `
+      ${extra1n ? `<div class="fila"><span class="lbl">📌 ${extra1n}</span><span class="val">${extra1v}</span></div>` : ''}
+      ${extra2n ? `<div class="fila"><span class="lbl">📌 ${extra2n}</span><span class="val">${extra2v}</span></div>` : ''}` : '';
+
+  const ppSec = pp.length ? pp.map(p=>`<div class="fila sub"><span class="lbl">• ${p.u}</span><span class="val">$${p.m}</span></div>`).join('') : '<div class="fila"><span class="lbl"></span><span class="val muted">—</span></div>';
+  const psrSec = psr.length ? psr.map(p=>`<div class="fila sub"><span class="lbl">• ${p.u}</span><span class="val">$${p.m}</span></div>`).join('') : '<div class="fila"><span class="lbl"></span><span class="val muted">—</span></div>';
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte ${agente} — ${turno} ${iniDia}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;min-height:100vh}
+  .wrap{max-width:480px;margin:0 auto}
+  .header{background:#1e1e1e;border-radius:14px;padding:18px;margin-bottom:12px;text-align:center;border:1px solid #333}
+  .header .turno{font-size:11px;font-weight:700;letter-spacing:2px;color:#2563eb;margin-bottom:4px}
+  .header .agente{font-size:22px;font-weight:800;letter-spacing:1px}
+  .header .fecha{font-size:13px;color:#888;margin-top:4px}
+  .seccion{background:#1e1e1e;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #2a2a2a}
+  .sec-titulo{font-size:11px;font-weight:700;color:#666;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+  .fila{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #222}
+  .fila:last-child{border-bottom:none}
+  .fila.sub{padding-left:12px}
+  .lbl{font-size:13px;color:#aaa;flex:1}
+  .val{font-size:14px;font-weight:600;color:#fff;text-align:right;margin-left:8px}
+  .val.muted{color:#555;font-weight:400}
+  .foto-grupo-titulo{font-size:12px;color:#888;margin:8px 0 6px;font-weight:600}
+  .fotos-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+  .fotos-grid a{display:block}
+  .fotos-grid img{width:140px;height:140px;object-fit:cover;border-radius:10px;border:1px solid #333;display:block}
+  .ini-bloque,.fin-bloque{background:#1a1a1a;border-radius:8px;padding:10px;margin-top:6px}
+  .bloque-titulo{font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+  .bloque-titulo.verde{color:#4ade80}
+  .bloque-titulo.rojo{color:#f87171}
+  .comentarios{font-size:14px;color:#ccc;line-height:1.6;white-space:pre-wrap;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="turno">TURNO ${turno}</div>
+    <div class="agente">${agente}</div>
+    <div class="fecha">${iniDia}</div>
+  </div>
+
+  <div class="seccion">
+    <div class="ini-bloque">
+      <div class="bloque-titulo verde">🟢 INICIO — ${HORAS[turno].ini}hs</div>
+      <div class="fila"><span class="lbl">Fichas</span><span class="val">${iniFichas}</span></div>
+      ${iniBill.map(b=>`<div class="fila"><span class="lbl">💳 ${b.n}</span><span class="val">$${b.m}</span></div>`).join('')}
+    </div>
+    <div style="height:10px"></div>
+    <div class="fin-bloque">
+      <div class="bloque-titulo rojo">🔴 FIN — ${HORAS[turno].fin}hs</div>
+      <div class="fila"><span class="lbl">Fichas</span><span class="val">${finFichas}</span></div>
+      ${finBill.map(b=>`<div class="fila"><span class="lbl">💳 ${b.n}</span><span class="val">$${b.m}</span></div>`).join('')}
+    </div>
+  </div>
+
+  <div class="seccion">
+    <div class="sec-titulo">📊 Movimientos</div>
+    <div class="fila"><span class="lbl">🎁 Bonos</span><span class="val">${bonos}</span></div>
+    <div class="fila"><span class="lbl">🗑 Descartes</span><span class="val">${descartes}</span></div>
+    <div class="fila"><span class="lbl">🔄 Cargas Otros Turnos</span><span class="val">${cargas}</span></div>
+    <div class="fila"><span class="lbl">💸 Pago Pendiente Grupo</span><span class="val"></span></div>
+    ${ppSec}
+    <div class="fila"><span class="lbl">📥 Colab. Recibida</span><span class="val">${colRec}</span></div>
+    <div class="fila"><span class="lbl">📤 Colab. Pagada</span><span class="val">${colPag}</span></div>
+    <div class="fila"><span class="lbl">📲 Carga de Fichas</span><span class="val">${cargaFichas}</span></div>
+    <div class="fila"><span class="lbl">📤 Retiro de Fichas</span><span class="val">${retiro}</span></div>
+    <div class="fila"><span class="lbl">💵 Sueldo</span><span class="val">${sueldo}</span></div>
+    <div class="fila"><span class="lbl">🎩 Propina</span><span class="val">${propina}</span></div>
+    ${extraSec}
+    <div class="fila"><span class="lbl">⏳ Pagos Pendientes sin Retirar</span><span class="val"></span></div>
+    ${psrSec}
+  </div>
+
+  ${comentarios && comentarios !== '—' ? `<div class="seccion"><div class="sec-titulo">💬 Comentarios</div><div class="comentarios">${comentarios}</div></div>` : ''}
+
+  ${fotosSec}
+</div>
+</body>
+</html>`;
+}
+
+function getBillerarasData(prefix) {
+  const result = [];
+  for (let i=1;i<=3;i++) {
+    const n = document.getElementById(`${prefix}-b${i}-n`).value;
+    const m = document.getElementById(`${prefix}-b${i}-m`).value.trim() || '0';
+    if (n) result.push({n, m});
+  }
+  return result;
+}
+
 async function generarReporte() {
   const btn = document.getElementById('btn-copy');
   btn.disabled = true;
@@ -302,7 +413,7 @@ async function generarReporte() {
 
   const nombre = v('f-nombre').replace(/\s+/g,'_').toUpperCase();
   const fecha  = v('f-ini-dia').replace(/\//g,'-');
-  const carpeta = `${nombre}__${fecha}__${turno}`;
+  const carpeta = `${nombre}${fecha}${turno}`;
 
   try {
     const totalFotos = (document.getElementById('fotos-ini').files.length) + (document.getElementById('fotos-fin').files.length);
@@ -315,24 +426,76 @@ async function generarReporte() {
 
     const urlsIni = await subirFotos('fotos-ini', carpeta, 'inicio');
     subidas += urlsIni.length;
-    if (totalFotos > 0) { btn.textContent = `⬆️ Subiendo fotos (${subidas}/${totalFotos})...`; setProgress(Math.round(subidas/totalFotos*90)); }
+    if (totalFotos > 0) { btn.textContent = `⬆️ Subiendo fotos (${subidas}/${totalFotos})...`; setProgress(Math.round(subidas/totalFotos*80)); }
 
     const urlsFin = await subirFotos('fotos-fin', carpeta, 'fin');
     subidas += urlsFin.length;
-    if (totalFotos > 0) { setProgress(100); }
 
+    // Armar datos
+    const extra1n = document.getElementById('f-extra1-nombre').value.trim();
+    const extra1v = document.getElementById('f-extra1-valor').value.trim() || '—';
+    const extra2n = document.getElementById('f-extra2-nombre').value.trim();
+    const extra2v = document.getElementById('f-extra2-valor').value.trim() || '—';
+
+    const getPendientes = (prefix) => {
+      const r = [];
+      for(let i=1;i<=3;i++){
+        const u = document.getElementById(`${prefix}-u${i}`).value.trim();
+        const m = document.getElementById(`${prefix}-m${i}`).value.trim();
+        if(u) r.push({u, m: m||'—'});
+      }
+      return r;
+    };
+
+    const datos = {
+      agente: v('f-nombre'),
+      turno,
+      iniDia: v('f-ini-dia'),
+      iniFichas: v('f-ini-fichas'),
+      iniBill: getBillerarasData('ini'),
+      finDia: v('f-fin-dia'),
+      finFichas: v('f-fin-fichas'),
+      finBill: getBillerarasData('fin'),
+      bonos: v('f-bonos'),
+      descartes: v('f-descartes'),
+      cargas: v('f-cargas'),
+      pp: getPendientes('pp'),
+      colRec: v('f-col-rec'),
+      colPag: v('f-col-pag'),
+      cargaFichas: v('f-carga-fichas'),
+      retiro: v('f-retiro'),
+      sueldo: v('f-sueldo'),
+      propina: v('f-propina'),
+      extra1n, extra1v, extra2n, extra2v,
+      psr: getPendientes('psr'),
+      comentarios: v('f-comentarios'),
+      urlsIni, urlsFin
+    };
+
+    // Generar y subir página HTML
+    let urlPagina = '';
+    btn.textContent = '⬆️ Generando página...';
+    setProgress(85);
+    try {
+      const htmlContent = buildPaginaHTML(datos);
+      const htmlBlob = new Blob([htmlContent], {type: 'text/html'});
+      const htmlRef = storage.ref(`reportes/${carpeta}/reporte.html`);
+      await htmlRef.put(htmlBlob);
+      urlPagina = await htmlRef.getDownloadURL();
+    } catch(eHtml) {
+      console.error('Error subiendo HTML:', eHtml);
+    }
+    setProgress(100);
+
+    // Texto para Telegram
     const lineasFotosIni = urlsIni.length ? '\n' + urlsIni.map((u,i)=>`   🟢 Foto inicio ${i+1}: ${u}`).join('\n') : '';
     const lineasFotosFin = urlsFin.length ? '\n' + urlsFin.map((u,i)=>`   🔴 Foto fin ${i+1}: ${u}`).join('\n') : '';
     const seccionFotos = (urlsIni.length || urlsFin.length)
       ? `\n\n📸 CAPTURAS${lineasFotosIni}${lineasFotosFin}`
       : '';
-
-    const extra1n = document.getElementById('f-extra1-nombre').value.trim();
-    const extra1v = document.getElementById('f-extra1-valor').value.trim() || '—';
-    const extra2n = document.getElementById('f-extra2-nombre').value.trim();
-    const extra2v = document.getElementById('f-extra2-valor').value.trim() || '—';
     const lineaExtra1 = extra1n ? `\n📌 ${extra1n}: ${extra1v}` : '';
     const lineaExtra2 = extra2n ? `\n📌 ${extra2n}: ${extra2v}` : '';
+    const seccionPagina = urlPagina ? `\n\n🌐 VER REPORTE CON FOTOS:\n${urlPagina}` : '';
 
     const sep  = '━━━━━━━━━━━━━━━━━━━━━━';
     const sep2 = '──────────────────────';
@@ -377,7 +540,7 @@ ${sep2}
 
 ⏳ Pagos Pendientes sin Retirar:${buildPendientes('psr')}
 
-💬 Comentarios: ${v('f-comentarios')}${seccionFotos}
+💬 Comentarios: ${v('f-comentarios')}${seccionFotos}${seccionPagina}
 ${sep}`;
 
     await navigator.clipboard.writeText(texto);
