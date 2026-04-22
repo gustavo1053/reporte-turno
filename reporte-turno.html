@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reporte de Turno</title>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #1a1a1a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; padding: 16px; }
@@ -55,24 +53,9 @@
   .extra-valor::placeholder { color: #555; }
   .divider { height: 1px; background: #333; margin: 12px 0; }
   select option { background: #2a2a2a; color: #fff; }
-
-  .foto-hint { font-size: 12px; color: #666; margin-bottom: 8px; font-style: italic; }
-  .foto-upload-area { border: 2px dashed #444; border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; color: #666; font-size: 14px; transition: all 0.15s; background: #1a1a1a; }
-  .foto-upload-area:active { border-color: #2563eb; color: #2563eb; }
-  .foto-previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .foto-preview-item { position: relative; }
-  .foto-preview-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #444; display: block; }
-  .foto-preview-item .foto-remove { position: absolute; top: -6px; right: -6px; background: #dc2626; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-  .foto-count { font-size: 12px; color: #4ade80; margin-top: 6px; }
-
   .btn-copy { width: 100%; padding: 16px; background: #2563eb; color: #fff; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; margin-top: 4px; }
   .btn-copy:active { transform: scale(0.98); }
-  .btn-copy.uploading { background: #854d0e; }
   .btn-copy.copied { background: #16a34a; }
-  .btn-copy:disabled { opacity: 0.7; cursor: not-allowed; }
-
-  .progress-bar-wrap { background: #333; border-radius: 8px; height: 6px; margin-top: 10px; display: none; }
-  .progress-bar { background: #2563eb; height: 6px; border-radius: 8px; width: 0%; transition: width 0.3s; }
 </style>
 </head>
 <body>
@@ -91,7 +74,6 @@
     <div class="field"><label>NOMBRE</label><input id="f-nombre" type="text" placeholder="Tu nombre" autocomplete="off"></div>
   </div>
 
-  <!-- INICIO -->
   <div class="card">
     <div class="section-title">🟢 Inicio de Turno</div>
     <div class="field-row">
@@ -107,17 +89,8 @@
         <div class="bill-row"><span class="bill-idx">3</span><select id="ini-b3-n"><option value="">— Elegir —</option><option>PERSONAL PAY</option><option>CLARO PAY</option><option>MERCADO PAGO</option><option>ASTROPAY</option><option>NX</option><option>PREX</option><option>UALA</option><option>LEMON</option><option>BUEPP</option></select><input id="ini-b3-m" type="text" placeholder="$ monto"></div>
       </div>
     </div>
-    <div class="field">
-      <label>📸 CAPTURAS DE INICIO</label>
-      <div class="foto-hint">Adjuntá capturas de Fichas y Billeteras al inicio</div>
-      <div class="foto-upload-area" onclick="document.getElementById('fotos-ini').click()">📎 Tocar para adjuntar fotos</div>
-      <input id="fotos-ini" type="file" accept="image/*" multiple style="display:none" onchange="mostrarPreviews(this,'previews-ini','count-ini')">
-      <div id="previews-ini" class="foto-previews"></div>
-      <div id="count-ini" class="foto-count"></div>
-    </div>
   </div>
 
-  <!-- FIN -->
   <div class="card">
     <div class="section-title">🔴 Fin de Turno</div>
     <div class="field-row">
@@ -133,17 +106,8 @@
         <div class="bill-row"><span class="bill-idx">3</span><select id="fin-b3-n"><option value="">— Elegir —</option><option>PERSONAL PAY</option><option>CLARO PAY</option><option>MERCADO PAGO</option><option>ASTROPAY</option><option>NX</option><option>PREX</option><option>UALA</option><option>LEMON</option><option>BUEPP</option></select><input id="fin-b3-m" type="text" placeholder="$ monto"></div>
       </div>
     </div>
-    <div class="field">
-      <label>📸 CAPTURAS DE FIN</label>
-      <div class="foto-hint">Adjuntá capturas de Fichas y Billeteras al fin</div>
-      <div class="foto-upload-area" onclick="document.getElementById('fotos-fin').click()">📎 Tocar para adjuntar fotos</div>
-      <input id="fotos-fin" type="file" accept="image/*" multiple style="display:none" onchange="mostrarPreviews(this,'previews-fin','count-fin')">
-      <div id="previews-fin" class="foto-previews"></div>
-      <div id="count-fin" class="foto-count"></div>
-    </div>
   </div>
 
-  <!-- MOVIMIENTOS -->
   <div class="card">
     <div class="section-title">📊 Movimientos</div>
     <div class="field"><label>BONOS</label><input id="f-bonos" type="text" placeholder="0"></div>
@@ -186,25 +150,10 @@
     <div class="field"><label>COMENTARIOS</label><textarea id="f-comentarios" placeholder="Escribí tus comentarios acá..." rows="4"></textarea></div>
   </div>
 
-  <div class="progress-bar-wrap" id="progress-wrap">
-    <div class="progress-bar" id="progress-bar"></div>
-  </div>
-
   <button class="btn-copy" id="btn-copy" onclick="generarReporte()">GENERAR Y COPIAR REPORTE</button>
 
 </div>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDkbTWJ-bIjCxIDhBS2A_d4seOAL0slguc",
-  authDomain: "control-agentes.firebaseapp.com",
-  projectId: "control-agentes",
-  storageBucket: "control-agentes.firebasestorage.app",
-  messagingSenderId: "1081360789264",
-  appId: "1:1081360789264:web:f9782407d4f2440f7bbf95"
-};
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-
 const HORAS = {
   MAÑANA: { ini:'06:00', fin:'14:00' },
   TARDE:  { ini:'14:00', fin:'22:00' },
@@ -219,33 +168,7 @@ function setTurno(t) {
   document.getElementById('f-fin-hora').value = HORAS[t].fin;
   const btn = document.getElementById('btn-copy');
   btn.textContent = 'GENERAR Y COPIAR REPORTE';
-  btn.classList.remove('copied','uploading');
-}
-
-function mostrarPreviews(input, containerId, countId) {
-  const container = document.getElementById(containerId);
-  const countEl = document.getElementById(countId);
-  container.innerHTML = '';
-  Array.from(input.files).forEach((file, i) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const item = document.createElement('div');
-      item.className = 'foto-preview-item';
-      item.innerHTML = `<img src="${e.target.result}"><button class="foto-remove" onclick="removerFoto('${input.id}',${i},'${containerId}','${countId}')">✕</button>`;
-      container.appendChild(item);
-    };
-    reader.readAsDataURL(file);
-  });
-  const total = input.files.length;
-  countEl.textContent = total > 0 ? `✅ ${total} foto${total>1?'s':''} adjunta${total>1?'s':''}` : '';
-}
-
-function removerFoto(inputId, idx, containerId, countId) {
-  const input = document.getElementById(inputId);
-  const dt = new DataTransfer();
-  Array.from(input.files).forEach((f,i) => { if(i!==idx) dt.items.add(f); });
-  input.files = dt.files;
-  mostrarPreviews(input, containerId, countId);
+  btn.classList.remove('copied');
 }
 
 function v(id) {
@@ -273,234 +196,18 @@ function buildPendientes(prefix) {
   return lines.length ? '\n'+lines.join('\n') : ' —';
 }
 
-function setProgress(pct) {
-  document.getElementById('progress-wrap').style.display = 'block';
-  document.getElementById('progress-bar').style.width = pct + '%';
-}
+function generarReporte() {
+  const sep  = '━━━━━━━━━━━━━━━━━━━━━━';
+  const sep2 = '──────────────────────';
 
-async function subirFotos(inputId, carpeta, nombre) {
-  const input = document.getElementById(inputId);
-  const files = Array.from(input.files);
-  if (!files.length) return [];
-  const urls = [];
-  for (let i=0; i<files.length; i++) {
-    const file = files[i];
-    const ext = file.name.split('.').pop();
-    const path = `reportes/${carpeta}/${nombre}_${i+1}.${ext}`;
-    const ref = storage.ref(path);
-    await ref.put(file);
-    const url = await ref.getDownloadURL();
-    urls.push(url);
-  }
-  return urls;
-}
+  const extra1n = document.getElementById('f-extra1-nombre').value.trim();
+  const extra1v = document.getElementById('f-extra1-valor').value.trim() || '—';
+  const extra2n = document.getElementById('f-extra2-nombre').value.trim();
+  const extra2v = document.getElementById('f-extra2-valor').value.trim() || '—';
+  const lineaExtra1 = extra1n ? `\n📌 ${extra1n}: ${extra1v}` : '';
+  const lineaExtra2 = extra2n ? `\n📌 ${extra2n}: ${extra2v}` : '';
 
-function buildPaginaHTML(datos) {
-  const { agente, turno, iniDia, iniFichas, iniBill, finDia, finFichas, finBill,
-          bonos, descartes, cargas, pp, colRec, colPag, cargaFichas, retiro,
-          sueldo, propina, extra1n, extra1v, extra2n, extra2v, psr, comentarios,
-          urlsIni, urlsFin } = datos;
-
-  const fotosSec = (urlsIni.length || urlsFin.length) ? `
-    <div class="seccion">
-      <div class="sec-titulo">📸 CAPTURAS</div>
-      ${urlsIni.length ? `<div class="foto-grupo-titulo">🟢 Inicio</div><div class="fotos-grid">${urlsIni.map(u=>`<a href="${u}" target="_blank"><img src="${u}" loading="lazy"></a>`).join('')}</div>` : ''}
-      ${urlsFin.length ? `<div class="foto-grupo-titulo">🔴 Fin</div><div class="fotos-grid">${urlsFin.map(u=>`<a href="${u}" target="_blank"><img src="${u}" loading="lazy"></a>`).join('')}</div>` : ''}
-    </div>` : '';
-
-  const extraSec = (extra1n || extra2n) ? `
-      ${extra1n ? `<div class="fila"><span class="lbl">📌 ${extra1n}</span><span class="val">${extra1v}</span></div>` : ''}
-      ${extra2n ? `<div class="fila"><span class="lbl">📌 ${extra2n}</span><span class="val">${extra2v}</span></div>` : ''}` : '';
-
-  const ppSec = pp.length ? pp.map(p=>`<div class="fila sub"><span class="lbl">• ${p.u}</span><span class="val">$${p.m}</span></div>`).join('') : '<div class="fila"><span class="lbl"></span><span class="val muted">—</span></div>';
-  const psrSec = psr.length ? psr.map(p=>`<div class="fila sub"><span class="lbl">• ${p.u}</span><span class="val">$${p.m}</span></div>`).join('') : '<div class="fila"><span class="lbl"></span><span class="val muted">—</span></div>';
-
-  return `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reporte ${agente} — ${turno} ${iniDia}</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;min-height:100vh}
-  .wrap{max-width:480px;margin:0 auto}
-  .header{background:#1e1e1e;border-radius:14px;padding:18px;margin-bottom:12px;text-align:center;border:1px solid #333}
-  .header .turno{font-size:11px;font-weight:700;letter-spacing:2px;color:#2563eb;margin-bottom:4px}
-  .header .agente{font-size:22px;font-weight:800;letter-spacing:1px}
-  .header .fecha{font-size:13px;color:#888;margin-top:4px}
-  .seccion{background:#1e1e1e;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #2a2a2a}
-  .sec-titulo{font-size:11px;font-weight:700;color:#666;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
-  .fila{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #222}
-  .fila:last-child{border-bottom:none}
-  .fila.sub{padding-left:12px}
-  .lbl{font-size:13px;color:#aaa;flex:1}
-  .val{font-size:14px;font-weight:600;color:#fff;text-align:right;margin-left:8px}
-  .val.muted{color:#555;font-weight:400}
-  .foto-grupo-titulo{font-size:12px;color:#888;margin:8px 0 6px;font-weight:600}
-  .fotos-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-  .fotos-grid a{display:block}
-  .fotos-grid img{width:140px;height:140px;object-fit:cover;border-radius:10px;border:1px solid #333;display:block}
-  .ini-bloque,.fin-bloque{background:#1a1a1a;border-radius:8px;padding:10px;margin-top:6px}
-  .bloque-titulo{font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
-  .bloque-titulo.verde{color:#4ade80}
-  .bloque-titulo.rojo{color:#f87171}
-  .comentarios{font-size:14px;color:#ccc;line-height:1.6;white-space:pre-wrap;margin-top:4px}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="header">
-    <div class="turno">TURNO ${turno}</div>
-    <div class="agente">${agente}</div>
-    <div class="fecha">${iniDia}</div>
-  </div>
-
-  <div class="seccion">
-    <div class="ini-bloque">
-      <div class="bloque-titulo verde">🟢 INICIO — ${HORAS[turno].ini}hs</div>
-      <div class="fila"><span class="lbl">Fichas</span><span class="val">${iniFichas}</span></div>
-      ${iniBill.map(b=>`<div class="fila"><span class="lbl">💳 ${b.n}</span><span class="val">$${b.m}</span></div>`).join('')}
-    </div>
-    <div style="height:10px"></div>
-    <div class="fin-bloque">
-      <div class="bloque-titulo rojo">🔴 FIN — ${HORAS[turno].fin}hs</div>
-      <div class="fila"><span class="lbl">Fichas</span><span class="val">${finFichas}</span></div>
-      ${finBill.map(b=>`<div class="fila"><span class="lbl">💳 ${b.n}</span><span class="val">$${b.m}</span></div>`).join('')}
-    </div>
-  </div>
-
-  <div class="seccion">
-    <div class="sec-titulo">📊 Movimientos</div>
-    <div class="fila"><span class="lbl">🎁 Bonos</span><span class="val">${bonos}</span></div>
-    <div class="fila"><span class="lbl">🗑 Descartes</span><span class="val">${descartes}</span></div>
-    <div class="fila"><span class="lbl">🔄 Cargas Otros Turnos</span><span class="val">${cargas}</span></div>
-    <div class="fila"><span class="lbl">💸 Pago Pendiente Grupo</span><span class="val"></span></div>
-    ${ppSec}
-    <div class="fila"><span class="lbl">📥 Colab. Recibida</span><span class="val">${colRec}</span></div>
-    <div class="fila"><span class="lbl">📤 Colab. Pagada</span><span class="val">${colPag}</span></div>
-    <div class="fila"><span class="lbl">📲 Carga de Fichas</span><span class="val">${cargaFichas}</span></div>
-    <div class="fila"><span class="lbl">📤 Retiro de Fichas</span><span class="val">${retiro}</span></div>
-    <div class="fila"><span class="lbl">💵 Sueldo</span><span class="val">${sueldo}</span></div>
-    <div class="fila"><span class="lbl">🎩 Propina</span><span class="val">${propina}</span></div>
-    ${extraSec}
-    <div class="fila"><span class="lbl">⏳ Pagos Pendientes sin Retirar</span><span class="val"></span></div>
-    ${psrSec}
-  </div>
-
-  ${comentarios && comentarios !== '—' ? `<div class="seccion"><div class="sec-titulo">💬 Comentarios</div><div class="comentarios">${comentarios}</div></div>` : ''}
-
-  ${fotosSec}
-</div>
-</body>
-</html>`;
-}
-
-function getBillerarasData(prefix) {
-  const result = [];
-  for (let i=1;i<=3;i++) {
-    const n = document.getElementById(`${prefix}-b${i}-n`).value;
-    const m = document.getElementById(`${prefix}-b${i}-m`).value.trim() || '0';
-    if (n) result.push({n, m});
-  }
-  return result;
-}
-
-async function generarReporte() {
-  const btn = document.getElementById('btn-copy');
-  btn.disabled = true;
-  btn.classList.add('uploading');
-
-  const nombre = v('f-nombre').replace(/\s+/g,'_').toUpperCase();
-  const fecha  = v('f-ini-dia').replace(/\//g,'-');
-  const carpeta = `${nombre}${fecha}${turno}`;
-
-  try {
-    const totalFotos = (document.getElementById('fotos-ini').files.length) + (document.getElementById('fotos-fin').files.length);
-    let subidas = 0;
-
-    if (totalFotos > 0) {
-      btn.textContent = `⬆️ Subiendo fotos (0/${totalFotos})...`;
-      setProgress(5);
-    }
-
-    const urlsIni = await subirFotos('fotos-ini', carpeta, 'inicio');
-    subidas += urlsIni.length;
-    if (totalFotos > 0) { btn.textContent = `⬆️ Subiendo fotos (${subidas}/${totalFotos})...`; setProgress(Math.round(subidas/totalFotos*80)); }
-
-    const urlsFin = await subirFotos('fotos-fin', carpeta, 'fin');
-    subidas += urlsFin.length;
-
-    // Armar datos
-    const extra1n = document.getElementById('f-extra1-nombre').value.trim();
-    const extra1v = document.getElementById('f-extra1-valor').value.trim() || '—';
-    const extra2n = document.getElementById('f-extra2-nombre').value.trim();
-    const extra2v = document.getElementById('f-extra2-valor').value.trim() || '—';
-
-    const getPendientes = (prefix) => {
-      const r = [];
-      for(let i=1;i<=3;i++){
-        const u = document.getElementById(`${prefix}-u${i}`).value.trim();
-        const m = document.getElementById(`${prefix}-m${i}`).value.trim();
-        if(u) r.push({u, m: m||'—'});
-      }
-      return r;
-    };
-
-    const datos = {
-      agente: v('f-nombre'),
-      turno,
-      iniDia: v('f-ini-dia'),
-      iniFichas: v('f-ini-fichas'),
-      iniBill: getBillerarasData('ini'),
-      finDia: v('f-fin-dia'),
-      finFichas: v('f-fin-fichas'),
-      finBill: getBillerarasData('fin'),
-      bonos: v('f-bonos'),
-      descartes: v('f-descartes'),
-      cargas: v('f-cargas'),
-      pp: getPendientes('pp'),
-      colRec: v('f-col-rec'),
-      colPag: v('f-col-pag'),
-      cargaFichas: v('f-carga-fichas'),
-      retiro: v('f-retiro'),
-      sueldo: v('f-sueldo'),
-      propina: v('f-propina'),
-      extra1n, extra1v, extra2n, extra2v,
-      psr: getPendientes('psr'),
-      comentarios: v('f-comentarios'),
-      urlsIni, urlsFin
-    };
-
-    // Generar y subir página HTML
-    let urlPagina = '';
-    btn.textContent = '⬆️ Generando página...';
-    setProgress(85);
-    try {
-      const htmlContent = buildPaginaHTML(datos);
-      const htmlBlob = new Blob([htmlContent], {type: 'text/html'});
-      const htmlRef = storage.ref(`reportes/${carpeta}/reporte.html`);
-      await htmlRef.put(htmlBlob);
-      urlPagina = await htmlRef.getDownloadURL();
-    } catch(eHtml) {
-      console.error('Error subiendo HTML:', eHtml);
-    }
-    setProgress(100);
-
-    // Texto para Telegram
-    const lineasFotosIni = urlsIni.length ? '\n' + urlsIni.map((u,i)=>`   🟢 Foto inicio ${i+1}: ${u}`).join('\n') : '';
-    const lineasFotosFin = urlsFin.length ? '\n' + urlsFin.map((u,i)=>`   🔴 Foto fin ${i+1}: ${u}`).join('\n') : '';
-    const seccionFotos = (urlsIni.length || urlsFin.length)
-      ? `\n\n📸 CAPTURAS${lineasFotosIni}${lineasFotosFin}`
-      : '';
-    const lineaExtra1 = extra1n ? `\n📌 ${extra1n}: ${extra1v}` : '';
-    const lineaExtra2 = extra2n ? `\n📌 ${extra2n}: ${extra2v}` : '';
-    const seccionPagina = urlPagina ? `\n\n🌐 VER REPORTE CON FOTOS:\n${urlPagina}` : '';
-
-    const sep  = '━━━━━━━━━━━━━━━━━━━━━━';
-    const sep2 = '──────────────────────';
-
-    const texto =
+  const texto =
 `${sep}
 📋 REPORTE DIARIO
 🔹 Turno: ${turno}
@@ -540,30 +247,20 @@ ${sep2}
 
 ⏳ Pagos Pendientes sin Retirar:${buildPendientes('psr')}
 
-💬 Comentarios: ${v('f-comentarios')}${seccionFotos}${seccionPagina}
+💬 Comentarios: ${v('f-comentarios')}
 ${sep}`;
 
-    await navigator.clipboard.writeText(texto);
+  navigator.clipboard.writeText(texto).then(() => {
+    const btn = document.getElementById('btn-copy');
     btn.textContent = '✅ COPIADO — PEGÁ EN TELEGRAM';
-    btn.classList.remove('uploading');
     btn.classList.add('copied');
     setTimeout(() => {
       btn.textContent = 'GENERAR Y COPIAR REPORTE';
       btn.classList.remove('copied');
-      document.getElementById('progress-wrap').style.display = 'none';
-      setProgress(0);
     }, 3000);
-
-  } catch(e) {
-    console.error(e);
-    btn.textContent = '❌ Error — intentá de nuevo';
-    btn.classList.remove('uploading');
-    setTimeout(() => {
-      btn.textContent = 'GENERAR Y COPIAR REPORTE';
-    }, 3000);
-  }
-
-  btn.disabled = false;
+  }).catch(() => {
+    alert('No se pudo copiar. Intentá de nuevo.');
+  });
 }
 
 setTurno('MAÑANA');
