@@ -242,6 +242,7 @@ let turno = 'MAÑANA';
 
 const AGENTES = ['AGE 18','AGE 19','AGE 21','AGE 22','AGE 23','AGE 24','AGE 25','SIEMPRE MONO'];
 const EXTRA_PAGADA = ['PEDIDO GUS','PEDIDO EMI'];
+const IND = '   '; // espacios de no separación: Telegram Web/Desktop colapsa espacios normales
 
 function slug(nombre) {
   return nombre.toLowerCase().replace(/\s+/g, '');
@@ -301,7 +302,7 @@ function buildBilleteras(prefix) {
   for (let i=1;i<=3;i++) {
     const n = document.getElementById(`${prefix}-b${i}-n`).value;
     const m = document.getElementById(`${prefix}-b${i}-m`).value.trim();
-    if (n) lines.push(`   💳 ${n}: $${m||'0'}`);
+    if (n) lines.push(`${IND}💳 ${n}: $${m||'0'}`);
   }
   return lines.length ? '\n'+lines.join('\n') : ' —';
 }
@@ -311,7 +312,7 @@ function buildPendientes(prefix) {
   for (let i=1;i<=3;i++) {
     const u = document.getElementById(`${prefix}-u${i}`).value.trim();
     const m = document.getElementById(`${prefix}-m${i}`).value.trim();
-    if (u) lines.push(`   • ${u}: $${m||'—'}`);
+    if (u) lines.push(`${IND}• ${u}: $${m||'—'}`);
   }
   return lines.length ? '\n'+lines.join('\n') : ' —';
 }
@@ -321,12 +322,12 @@ function buildCollab(prefix, items) {
   items.forEach(nombre => {
     const el = document.getElementById(`${prefix}-${slug(nombre)}`);
     const val = el ? el.value.trim() : '';
-    if (val) lines.push(`   • ${nombre}: $${val}`);
+    if (val) lines.push(`${IND}• ${nombre}: $${val}`);
   });
   const totalEl = document.getElementById(`${prefix}-total`);
   const total = totalEl ? totalEl.value : '0';
   const detalle = lines.length ? '\n'+lines.join('\n') : ' —';
-  return `${detalle}\n   ➜ Total: $${total}`;
+  return `${detalle}\n${IND}➜ Total: $${total}`;
 }
 
 function generarReporte() {
